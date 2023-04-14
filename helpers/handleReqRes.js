@@ -38,16 +38,7 @@ handler.handleReqRes = (req, res) => {
     let realData = "";
 
     const chossenHandler = routes[trimmedPath] ? routes[trimmedPath] : notFoundHandler;
-    chossenHandler(requestProperties, (statusCode, payload) => {
-        statusCode = typeof statusCode === 'number' ? statusCode : 500;
-        payload = typeof payload === 'object' ? payload : {};
 
-        const payloadString = JSON.stringify(payload);
-
-        // return the final response
-        res.writeHead(statusCode);
-        res.end(payloadString);
-    })
     req.on('data', (buffer) => {
         realData += decoder.write(buffer)
     })
@@ -55,8 +46,19 @@ handler.handleReqRes = (req, res) => {
     req.on('end', () => {
         realData += decoder.end();
         console.log(realData, "bodyData");
+
+        chossenHandler(requestProperties, (statusCode, payload) => {
+            statusCode = typeof statusCode === 'number' ? statusCode : 500;
+            payload = typeof payload === 'object' ? payload : {};
+
+            const payloadString = JSON.stringify(payload);
+
+            // return the final response
+            res.writeHead(statusCode);
+            res.end(payloadString);
+        })
         // response handle
-        res.end('Hello & welcome to node js');
+        // res.end('Hello & welcome to node js');
     })
 }
 
